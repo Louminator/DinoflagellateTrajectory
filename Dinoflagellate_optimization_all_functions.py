@@ -86,6 +86,46 @@ def data_generation(r,g,p, alpha, beta, phi, xo, yo, zo, num_pnts, end_angle, no
 
     return rot_trans(unrot_data, alpha, beta, xo, yo, zo) + [t]
 
+def plot_data(data,ID): 
+    ''' This function graphs the data, and annotates each point so that the user may
+        determine how to split up the helix for analysis.
+    '''
+    
+    fig = plt.figure()
+    ax = fig.add_subplot(111,projection='3d')
+
+    ax.plot(data[0], data[1], data[2])
+
+    # Annotating each point
+    for i in arange(0, len(data[0])):
+        ax.text(data[0][i], data[1][i], data[2][i],  "%s" % (ID[i]), size=7, zorder=100)
+
+
+    # Making axes equal range (from http://stackoverflow.com/questions/13685386/
+    # matplotlib-equal-unit-length-with-equal-aspect-ratio-z-axis-is-not-equal-to)
+    
+    ax.set_aspect('equal')
+
+    X = data[0]
+    Y = data[1]
+    Z = data[2]
+
+    # Create cubic bounding box to simulate equal aspect ratio
+    max_range = array([X.max()-X.min(), Y.max()-Y.min(), Z.max()-Z.min()]).max()
+    Xb = 0.5*max_range*mgrid[-1:2:2,-1:2:2,-1:2:2][0].flatten() + 0.5*(X.max()+X.min())
+    Yb = 0.5*max_range*mgrid[-1:2:2,-1:2:2,-1:2:2][1].flatten() + 0.5*(Y.max()+Y.min())
+    Zb = 0.5*max_range*mgrid[-1:2:2,-1:2:2,-1:2:2][2].flatten() + 0.5*(Z.max()+Z.min())
+    # Comment or uncomment following both lines to test the fake bounding box:
+    for xb, yb, zb in zip(Xb, Yb, Zb):
+       ax.plot([xb], [yb], [zb], 'w')
+
+    plt.grid()
+
+    plt.xlabel('x ($\mu$m)')
+    plt.ylabel('y ($\mu$m)')
+    ax.set_zlabel('z ($\mu$m)')
+    plt.show()
+
 def rot_trans(unrot, alpha, beta, xo, yo, zo):
     '''Rotates the input data about the x and then y axes, then translates.  This
         is primarily used for graphing the solution and generating data.
@@ -415,7 +455,7 @@ def plot_solution(r, g, p, alpha, beta, phi, xo, yo, zo, data):
 #
 # For simulated data, uncomment this line:
 #
-data = data_generation(4,1,10,.5,1,0,20,30,40,10,4*pi,.01)
+#data = data_generation(4,1,10,.5,1,0,20,30,40,10,4*pi,.01)
 #
 # (r, g, p, alpha, beta, phi, xo, yo, zo, num_pnts, end_angle, noise_sd)
 #
@@ -425,11 +465,14 @@ data = data_generation(4,1,10,.5,1,0,20,30,40,10,4*pi,.01)
 #
 # For real data, uncomment the following lines:
 #
-##full_data = read_data('KV_7.22_120fps_2_Track1519.txt')
-##data = full_data[0]
-##ID = full_data[1]
+full_data = read_data('KV_7.22_120fps_2_Track1519_full.txt')
+data = full_data[0]
+ID = full_data[1]
 #
 ###################
+
+# To plot the data with point annotation
+plot_data(data,ID)
 
 # This function performs a rough translation to the origin
 trans_data = prelim_params_trans(data)
