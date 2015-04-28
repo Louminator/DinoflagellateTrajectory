@@ -231,7 +231,7 @@ def call_bh_prelim_params(trans_data):
     print("Preliminary parameters minimization: x = [%.4f, %.4f], epsilon = %.4f" %\
           (ret.x[0], ret.x[1], ret.fun))
 
-    z = [cos(ret.x[0])*sin(ret.x[1]), sin(ret.x[0])*sin(ret.x[1]), cos(ret.x[1])]
+    z = array([cos(ret.x[0])*sin(ret.x[1]), sin(ret.x[0])*sin(ret.x[1]), cos(ret.x[1])])
 
     epsilon = ret.fun
 
@@ -353,7 +353,7 @@ def call_bh_main( r_guess, alpha_guess, beta_guess, data):
     # Initial guesses.
     # data[0][0] uses the first x coordinate as the initial guess for the x translation.
     # x0 = [r, g, p, alpha, beta, phi, xo, yo, zo]
-    x0 = [r_guess, 1, 10, alpha_guess, beta_guess, 0, data[0][0], data[1][0], data[2][0]] 
+    x0 = [r_guess, 4, 10, alpha_guess, beta_guess, 0, data[0][0], data[1][0], data[2][0]] 
 
 
     # Timing the algorithm
@@ -366,7 +366,7 @@ def call_bh_main( r_guess, alpha_guess, beta_guess, data):
     # should also be estimated.  The last three elements are the bounds for the translations,
     # and are estimated automatically from the first x, y, and z coordinates of the data set.
 
-    minimizer_kwargs = {"method": "L-BFGS-B", "args": data, "bounds": ((0, None),(0,2*pi),(None, None),
+    minimizer_kwargs = {"method": "L-BFGS-B", "args": data, "bounds": ((r_guess*0.5,r_guess*1.5),(0,2*pi),(0, None),
                                                      (0,2*pi),(0,2*pi),(0,2*pi),
                                                                        (data[0][0] - 20, data[0][0] + 20),
                                                                        (data[1][0] - 20, data[1][0] + 20),
@@ -454,8 +454,13 @@ def plot_solution(r, g, p, alpha, beta, phi, xo, yo, zo, data,ax):
 # For real data, uncomment the following lines:
 #
 full_data = read_data('KV_7.22_120fps_2_Track1519_full.txt')
-data = full_data[0]
+data = array(full_data[0])
 ID = full_data[1]
+
+#Trim the data to a smaller size
+
+data = data[:,:]
+ID = ID[:]
 #
 ###################
 
@@ -470,6 +475,10 @@ trans_data = prelim_params_trans(data)
 
 # This function calls the basinhopping algorithm to find preliminary parameter guesses
 [r_guess, beta_guess, alpha_guess, z] = call_bh_prelim_params(trans_data)
+if (alpha_guess<0):
+    alpha_guess = alpha_guess+2*pi
+if (beta_guess<0):
+    beta_guess = beta_guess+2*pi
 
 # This plots the translated data and the projected data to ensure that the normal to
 # the plane of projection (z) found by basinhopping does indeed point in the direction
