@@ -86,20 +86,16 @@ def data_generation(r,g,p, alpha, beta, phi, xo, yo, zo, num_pnts, end_angle, no
 
     return rot_trans(unrot_data, alpha, beta, xo, yo, zo) + [t]
 
-def plot_data(data,ID): 
+def plot_data(data,ID,ax): 
     ''' This function graphs the data, and annotates each point so that the user may
         determine how to split up the helix for analysis.
     '''
-    
-    fig = plt.figure()
-    ax = fig.add_subplot(111,projection='3d')
 
     ax.plot(data[0], data[1], data[2])
 
     # Annotating each point
     for i in arange(0, len(data[0])):
         ax.text(data[0][i], data[1][i], data[2][i],  "%s" % (ID[i]), size=7, zorder=100)
-
 
     # Making axes equal range (from http://stackoverflow.com/questions/13685386/
     # matplotlib-equal-unit-length-with-equal-aspect-ratio-z-axis-is-not-equal-to)
@@ -124,7 +120,6 @@ def plot_data(data,ID):
     plt.xlabel('x ($\mu$m)')
     plt.ylabel('y ($\mu$m)')
     ax.set_zlabel('z ($\mu$m)')
-    plt.show()
 
 def rot_trans(unrot, alpha, beta, xo, yo, zo):
     '''Rotates the input data about the x and then y axes, then translates.  This
@@ -252,7 +247,7 @@ def call_bh_prelim_params(trans_data):
 
     return r_guess, beta_guess, alpha_guess, z
 
-def plot_prelim_angles(z, trans_data):
+def plot_prelim_angles(z, trans_data,ax):
     '''This function plots the translated data with the optimal vector z, the projected points,
         and the center of mass, allowing the user to visually confirm that z does indeed point
         in the direction of the helix.
@@ -280,8 +275,6 @@ def plot_prelim_angles(z, trans_data):
     helix_length = sqrt((trans_data[0][0]-trans_data[0][-1])**2 +
                         (trans_data[1][0]-trans_data[1][-1])**2 +
                         (trans_data[2][0]-trans_data[2][-1])**2)
-    fig = plt.figure()
-    ax = fig.gca(projection='3d')
     ax.plot(trans_data[0], trans_data[1], trans_data[2], 'o', label ='Data')
     ax.plot(Xi[0], Xi[1], Xi[2], 'o', label = 'Projected data')
     ax.plot([Xbar[0],Xbar[0]+.2*helix_length*z[0]], [Xbar[1],Xbar[1]+.2*helix_length*z[1]],
@@ -311,8 +304,7 @@ def plot_prelim_angles(z, trans_data):
     plt.xlabel('x ($\mu$m)')
     plt.ylabel('y ($\mu$m)')
     ax.set_zlabel('z ($\mu$m)')
-    ax.legend(numpoints=1)
-    plt.show()
+    ax.legend(numpoints=1,fontsize=11)
     
 def main_helix_opt(x,*args):
     '''This function primarily acts as the function to be passed to the basin hopping
@@ -395,7 +387,7 @@ def call_bh_main( r_guess, alpha_guess, beta_guess, data):
 
     return ret.x[0], ret.x[1], ret.x[2], ret.x[3], ret.x[4], ret.x[5], ret.x[6], ret.x[7], ret.x[8], ret.fun
 
-def plot_solution(r, g, p, alpha, beta, phi, xo, yo, zo, data):
+def plot_solution(r, g, p, alpha, beta, phi, xo, yo, zo, data,ax):
     '''This function provides a way to visually confirm the fit.  It graphs the
         data points along with a helix using the parameters found to best fit the data.
         Parameters:
@@ -411,9 +403,6 @@ def plot_solution(r, g, p, alpha, beta, phi, xo, yo, zo, data):
     solution = [xs, ys, zs]
 
     solution = rot_trans(solution, alpha, beta, xo, yo, zo) + [t]
-    
-    fig = plt.figure()
-    ax = fig.gca(projection='3d')
 
     ax.plot(solution[0], solution[1], solution[2], label = 'Solution')
 
@@ -442,8 +431,7 @@ def plot_solution(r, g, p, alpha, beta, phi, xo, yo, zo, data):
     plt.xlabel('x ($\mu$m)')
     plt.ylabel('y ($\mu$m)')
     ax.set_zlabel('z ($\mu$m)')
-    ax.legend()
-    plt.show()
+    ax.legend(fontsize=11)
 
 ###############################################################################################
 # Function calls
@@ -471,8 +459,11 @@ ID = full_data[1]
 #
 ###################
 
+fig = plt.figure()
+
 # To plot the data with point annotation
-plot_data(data,ID)
+ax = fig.add_subplot(221,projection='3d')
+plot_data(data,ID,ax)
 
 # This function performs a rough translation to the origin
 trans_data = prelim_params_trans(data)
@@ -484,13 +475,17 @@ trans_data = prelim_params_trans(data)
 # the plane of projection (z) found by basinhopping does indeed point in the direction
 # of the helix.
 # NOTE: Be sure to close the plot, otherwise the script will not continue to evaluate
-plot_prelim_angles(z, trans_data)
+ax = fig.add_subplot(222,projection='3d')
+plot_prelim_angles(z, trans_data,ax)
 
 # This calls the main basinhopping algorithm, and returns the helical parameters best fit to the data
 [ r, g, p, alpha, beta, phi, xo, yo, zo, main_epsilon ] = call_bh_main(r_guess, alpha_guess, beta_guess, data)
 
 # This provides a visual check for by plotting the solution helix with the data.
-plot_solution(r, g, p, alpha, beta, phi, xo, yo, zo, data)
+ax = fig.add_subplot(223,projection='3d')
+plot_solution(r, g, p, alpha, beta, phi, xo, yo, zo, data,ax)
 
 # NOTE: If the main optimization is failing to find the correct helix, try switching sin
 # and cos in main_helix_opt and plot_solution
+
+plt.show()
