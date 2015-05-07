@@ -454,47 +454,57 @@ def plot_solution(r, g, p, alpha, beta, phi, xo, yo, zo, data,ax):
 # For real data, uncomment the following lines:
 #
 full_data = read_data('KV_7.22_120fps_2_Track1519_full.txt')
-data = array(full_data[0])
-ID = full_data[1]
+origdata = array(full_data[0])
+origID = full_data[1]
 
 #Trim the data to a smaller size
 
-data = data[:,:]
-ID = ID[:]
+#data = origdata[:,:12]
+#ID = origID[:12]
 #
 ###################
 
-fig = plt.figure()
+for start in range(0,17):
 
-# To plot the data with point annotation
-ax = fig.add_subplot(221,projection='3d')
-plot_data(data,ID,ax)
-
-# This function performs a rough translation to the origin
-trans_data = prelim_params_trans(data)
-
-# This function calls the basinhopping algorithm to find preliminary parameter guesses
-[r_guess, beta_guess, alpha_guess, z] = call_bh_prelim_params(trans_data)
-if (alpha_guess<0):
-    alpha_guess = alpha_guess+2*pi
-if (beta_guess<0):
-    beta_guess = beta_guess+2*pi
-
-# This plots the translated data and the projected data to ensure that the normal to
-# the plane of projection (z) found by basinhopping does indeed point in the direction
-# of the helix.
-# NOTE: Be sure to close the plot, otherwise the script will not continue to evaluate
-ax = fig.add_subplot(222,projection='3d')
-plot_prelim_angles(z, trans_data,ax)
-
-# This calls the main basinhopping algorithm, and returns the helical parameters best fit to the data
-[ r, g, p, alpha, beta, phi, xo, yo, zo, main_epsilon ] = call_bh_main(r_guess, alpha_guess, beta_guess, data)
-
-# This provides a visual check for by plotting the solution helix with the data.
-ax = fig.add_subplot(223,projection='3d')
-plot_solution(r, g, p, alpha, beta, phi, xo, yo, zo, data,ax)
-
-# NOTE: If the main optimization is failing to find the correct helix, try switching sin
-# and cos in main_helix_opt and plot_solution
+    data = origdata[:,start:start+8]
+    
+    # Shift time to zero for the first data point.
+    data[3,:] = data[3,:]-data[3,0]
+    ID = origID[start:start+8]
+    
+    fig = plt.figure()
+    
+    # To plot the data with point annotation
+    ax = fig.add_subplot(221,projection='3d')
+    plot_data(data,ID,ax)
+    
+    # This function performs a rough translation to the origin
+    trans_data = prelim_params_trans(data)
+    
+    # This function calls the basinhopping algorithm to find preliminary parameter guesses
+    [r_guess, beta_guess, alpha_guess, z] = call_bh_prelim_params(trans_data)
+    
+    # This is probably a good idea, but we do not konw for sure if it is necessary.
+    if (alpha_guess<0):
+        alpha_guess = alpha_guess+2*pi
+    if (beta_guess<0):
+        beta_guess = beta_guess+2*pi
+    
+    # This plots the translated data and the projected data to ensure that the normal to
+    # the plane of projection (z) found by basinhopping does indeed point in the direction
+    # of the helix.
+    # NOTE: Be sure to close the plot, otherwise the script will not continue to evaluate
+    ax = fig.add_subplot(222,projection='3d')
+    plot_prelim_angles(z, trans_data,ax)
+    
+    # This calls the main basinhopping algorithm, and returns the helical parameters best fit to the data
+    [ r, g, p, alpha, beta, phi, xo, yo, zo, main_epsilon ] = call_bh_main(r_guess, alpha_guess, beta_guess, data)
+    
+    # This provides a visual check for by plotting the solution helix with the data.
+    ax = fig.add_subplot(223,projection='3d')
+    plot_solution(r, g, p, alpha, beta, phi, xo, yo, zo, data,ax)
+    
+    # NOTE: If the main optimization is failing to find the correct helix, try switching sin
+    # and cos in main_helix_opt and plot_solution
 
 plt.show()
