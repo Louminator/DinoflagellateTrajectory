@@ -301,13 +301,14 @@ for start in range(0,17):
     # To plot the data with point annotation
     ax = fig.add_subplot(221,projection='3d')
     plot_data(data,ID,ax)
-    
+
     # This function performs a rough translation to the origin
     trans_data = prelim_params_trans(data)
-    
+    print 'Trans data set.'
     # This function calls the basinhopping algorithm to find preliminary parameter guesses
     [r_guess, beta_guess, alpha_guess, z] = call_bh_prelim_params(trans_data)
-    
+    print 'Hey ho.'
+
     # This is probably a good idea, but we do not konw for sure if it is necessary.
     if (alpha_guess<0):
         alpha_guess = alpha_guess+2*pi
@@ -320,7 +321,7 @@ for start in range(0,17):
     # NOTE: Be sure to close the plot, otherwise the script will not continue to evaluate
     ax = fig.add_subplot(222,projection='3d')
     plot_prelim_angles(z, trans_data,ax)
-    
+
     # This calls the main basinhopping algorithm, and returns the helical parameters best fit to the data
     [ r, g, p, alpha, beta, phi, xo, yo, zo, main_epsilon ] = call_bh_main(r_guess, alpha_guess, beta_guess, data)
     
