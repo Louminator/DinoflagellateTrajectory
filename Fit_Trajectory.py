@@ -28,7 +28,7 @@ def f(pXi, zs):
     '''
     return(pXi*zs)
 
-def prelim_params_test(x,*args):
+def prelim_params_test(x,trans_data):
     '''This is the function passed to basinhopping which returns the sum of the distances from
        the center of mass of points projected onto a plane.  The normal vector to the plane is
        dependent on two angles, which are the parameters to be optimized.
@@ -77,7 +77,7 @@ def call_bh_prelim_params(trans_data):
             trans_data - data roughly translated to the origin
     '''
     
-    minimizer_kwargs = {"method": "L-BFGS-B", "args": trans_data, "bounds": ((0,2*pi),(0,2*pi))}
+    minimizer_kwargs = {"method": "L-BFGS-B", "args": (trans_data,), "bounds": ((0,2*pi),(0,2*pi))}
     
     x0 = [pi, pi]
     
@@ -101,7 +101,7 @@ def call_bh_prelim_params(trans_data):
 
     return r_guess, beta_guess, alpha_guess, z
 
-def main_helix_opt(x,*args):
+def main_helix_opt(x,data):
     '''This function primarily acts as the function to be passed to the basin hopping
     optimization.  It calculates and returns the error between the data coordinates
     and the calculated coordinates (including rotation and translation).
@@ -161,7 +161,7 @@ def call_bh_main( r_guess, alpha_guess, beta_guess, data):
     # should also be estimated.  The last three elements are the bounds for the translations,
     # and are estimated automatically from the first x, y, and z coordinates of the data set.
 
-    minimizer_kwargs = {"method": "L-BFGS-B", "args": data, "bounds": ((r_guess*0.5,r_guess*1.5),(0,2*pi),(0, None),
+    minimizer_kwargs = {"method": "L-BFGS-B", "args": (data,), "bounds": ((r_guess*0.5,r_guess*1.5),(0,2*pi),(0, None),
                                                      (0,2*pi),(0,2*pi),(0,2*pi),
                                                                        (data[0][0] - 20, data[0][0] + 20),
                                                                        (data[1][0] - 20, data[1][0] + 20),

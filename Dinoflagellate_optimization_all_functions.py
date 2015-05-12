@@ -304,10 +304,9 @@ for start in range(0,17):
 
     # This function performs a rough translation to the origin
     trans_data = prelim_params_trans(data)
-    print 'Trans data set.'
+
     # This function calls the basinhopping algorithm to find preliminary parameter guesses
     [r_guess, beta_guess, alpha_guess, z] = call_bh_prelim_params(trans_data)
-    print 'Hey ho.'
 
     # This is probably a good idea, but we do not konw for sure if it is necessary.
     if (alpha_guess<0):
