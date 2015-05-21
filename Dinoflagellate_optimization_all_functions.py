@@ -3,11 +3,12 @@ from scipy import *
 import matplotlib as mpl
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
+import csv
 
 #from Fit_Trajectory import prelim_params_trans,call_bh_main,call_bh_prelim_params,f,main_helix_opt
 from Fit_Trajectory import *
 
-def read_data(filename):
+def read_data_txt(filename):
     ''' This function reads in x, y, z coordinates and ID for individual points along a
         track from a text file.  The text file should should include only the data points
         to be fit to the helix, starting at time 0.  It returns a tuple of arrays containing
@@ -53,6 +54,52 @@ def read_data(filename):
     data = [x, y, z, t]
 
     return [tuple(data), ID]
+
+def read_data_csv(filename):
+    ''' This function reads in x, y, z coordinates and ID for individual points along a
+        track from a text file.  The text file should not include 0,0,0 as a point.  The
+        coordinates are saved as arrays to be passed to the graphing function, as are the
+        IDs.
+    '''
+
+    x = []
+    y = []
+    z = []
+    t = []
+    ID = []
+
+    csvfile = open(filename, 'rb')
+    file1 = csv.reader(csvfile, delimiter=',', quotechar='|')
+    for row in file1:
+        
+        record = row[:]
+        
+        x.append(record[0])
+        
+        y.append(record[1])
+
+        z.append(record[2])
+
+        t.append(record[3])
+
+        ID.append(record[6])
+
+    csvfile.close()
+    x = [float(i) for i in x[2:]]
+    y = [float(i) for i in y[2:]]
+    z = [float(i) for i in z[2:]]
+    t = [float(i) for i in t[2:]]
+    ID = [int(i) for i in ID[2:]]
+    
+    x = asarray(x)
+    y = asarray(y)
+    z = asarray(z)
+    t = asarray(t)
+    
+    
+    data = [x, y, z, t]
+
+    return [tuple(data),ID]
 
 def data_generation(r,g,p, alpha, beta, phi, xo, yo, zo, num_pnts, end_angle, noise_sd):
     '''This function generates data by creating x, y, and z coordinates for a helix
@@ -278,7 +325,7 @@ def plot_solution(r, g, p, alpha, beta, phi, xo, yo, zo, data,ax):
 #
 # For real data, uncomment the following lines:
 #
-full_data = read_data('KV_7.22_120fps_2_Track1519_full.txt')
+full_data = read_data_csv('Track1519.csv')
 origdata = array(full_data[0])
 origID = full_data[1]
 
