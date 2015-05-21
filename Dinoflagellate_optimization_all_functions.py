@@ -4,6 +4,7 @@ import matplotlib as mpl
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 
+#from Fit_Trajectory import prelim_params_trans,call_bh_main,call_bh_prelim_params,f,main_helix_opt
 from Fit_Trajectory import *
 
 def read_data(filename):
